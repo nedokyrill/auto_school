@@ -47,10 +47,16 @@ func (h *Handler) registerHandler(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with %s email already exists", payload.Email))
 	}
 
-	h.store.CreateUser(types.User{
+	err = h.store.CreateUser(types.User{
 		FirstName: payload.FirstName,
 		LastName:  payload.Nickname,
 		Email:     payload.Email,
 		Password:  payload.Password,
 	})
+
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("error with creating user: ", err))
+	}
+
+	utils.WriteJson(w, http.StatusCreated, checkUser)
 }
